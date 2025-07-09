@@ -1,49 +1,74 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import '../index.css'
+import '../index.css';
 
-function AdminLogin(){
-    const [form,setForm] = useState({email:'',password:''});
+const backendURL = import.meta.env.VITE_BACKEND_URL;
+
+function AdminLogin() {
+    const [form, setForm] = useState({ email: '', password: '' });
     const navigate = useNavigate();
-    const handleChange = (e) =>{
-        setForm({...form,[e.target.name]:e.target.value});
-    }
-    const handleSubmit = async (e)=>{
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-    try{
-        const info = await fetch('api/adminlogin',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(form),
-        })
-        const data = await info.json();
+        try {
+            const info = await fetch(`${backendURL}/api/adminlogin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(form),
+            });
+            const data = await info.json();
 
-        if(info.ok){
-            alert("Login Successfull!");
-            localStorage.setItem('admin',JSON.stringify(data.admin));
-            navigate('/adminDashboard');
-        }else{
-            alert("Error");
+            if (info.ok) {
+                alert("Login Successful!");
+                localStorage.setItem('admin', JSON.stringify(data.admin));
+                navigate('/adminDashboard');
+            } else {
+                alert(data.message || "Login failed.");
+            }
+
+        } catch (err) {
+            console.log("Error while fetching:", err);
+            alert("Failed to get details. Try again!");
         }
+    };
 
-    }catch(err){
-        console.log("Error while fetching:",err);
-        alert("Failed to get details. Try again!");
-    }
-        
-    }
-
-    return(
-
-        <div>
-            <div>
-                <form onSubmit={handleSubmit}>
-                    <input name='email' onChange={handleChange} value={form.email} placeholder='Email' required/>
-                    <input name='password' type="password" onChange={handleChange} value={form.password} placeholder='Password' required/>
-                    <button type='submit'>Login</button>
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <div className="bg-white shadow-lg p-8 rounded-xl w-full max-w-md">
+                <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Admin Login</h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input
+                        name="email"
+                        type="email"
+                        placeholder="Email"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <input
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                    >
+                        Login
+                    </button>
                 </form>
             </div>
         </div>
-    )
+    );
 }
+
 export default AdminLogin;

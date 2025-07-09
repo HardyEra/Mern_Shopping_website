@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 function PostProducts(){
     const [form,setForm]=useState({
@@ -33,13 +33,13 @@ function PostProducts(){
 
 
         try {
-            const res = await fetch('api/products', {
+            const res = await fetch(`${backendURL}/api/products`, {
             method: 'POST',
             body: formData,
             });
 
         if (!res.ok) {
-            const errorText = await res.text(); // try getting plain text
+            const errorText = await res.text();
             throw new Error(`Server Error: ${res.status} - ${errorText}`);
         }
 

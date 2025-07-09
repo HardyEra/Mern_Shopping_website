@@ -1,3 +1,4 @@
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 import {useState} from 'react'
 import { useEffect } from 'react';
 import '../index.css'
@@ -10,7 +11,7 @@ function AdminDashboard(){
     const ad_id = admin._id;
     useEffect(()=>{
         const fetchProd = async ()=>{
-            const res = await fetch(`api/products/${ad_id}`);
+            const res = await fetch(`${backendURL}/api/products/${ad_id}`);
             const data =await res.json();
             setadmProd(data);
         }
@@ -18,7 +19,7 @@ function AdminDashboard(){
     },[])
     useEffect(()=>{
         const fetchOrders =async ()=>{
-            const res = await fetch(`api/Orders/${ad_id}`);
+            const res = await fetch(`${backendURL}/api/Orders/${ad_id}`);
 
             const data  =await res.json();
             setOrder(data);
@@ -30,7 +31,7 @@ function AdminDashboard(){
     <AdminNavbar />
 
     <div className="flex flex-col md:flex-row w-full h-full p-4 gap-6">
-      {/* Admin Products */}
+
       <div className="w-full md:w-1/2 space-y-4">
         <h2 className="text-xl font-semibold text-gray-700 mb-2">Your Products</h2>
         {admProd.length === 0 ? (
@@ -49,7 +50,6 @@ function AdminDashboard(){
         )}
       </div>
 
-      {/* Orders */}
       <div className="w-full md:w-1/2 space-y-4">
         <h2 className="text-xl font-semibold text-gray-700 mb-2">Orders Received</h2>
         {order.length === 0 ? (

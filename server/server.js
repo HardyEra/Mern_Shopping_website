@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
 const express = require('express');
+const cors = require('cors');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -13,7 +14,11 @@ const Product = require('./models/products');
 const Cart = require('./models/cart');
 const Order = require('./models/order');
 
-
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+}));
 
 app.use(express.json());
 

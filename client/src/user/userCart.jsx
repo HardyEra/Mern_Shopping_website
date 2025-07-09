@@ -1,3 +1,4 @@
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 import { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import '../index.css'
@@ -7,7 +8,7 @@ function UserCart(){
     const [prod,setProd]=useState([]);
     useEffect(()=>{
         const fetchCartProd =async ()=>{
-            const res = await fetch(`api/cartProd/${user._id}`);
+            const res = await fetch(`${backendURL}/api/cartProd/${user._id}`);
 
             const data = await res.json();
 
@@ -17,7 +18,7 @@ function UserCart(){
     },[])
 
     const handleBuy =async (item)=>{
-        const res = await fetch('api/Orders',{
+        const res = await fetch(`${backendURL}/api/Orders`,{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({prodId:item.prodId, userId:user._id, title:item.title, price:item.price, description:item.description}),

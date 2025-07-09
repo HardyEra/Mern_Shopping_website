@@ -1,3 +1,4 @@
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../index.css';
@@ -11,7 +12,7 @@ function AdminSignup(){
     const handleSubmit = async (e)=>{
         e.preventDefault();
 
-        const res = await fetch('api/adminSignup',{
+        const res = await fetch(`${backendURL}/api/adminSignup`,{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify(form),

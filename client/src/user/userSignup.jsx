@@ -1,3 +1,4 @@
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +11,7 @@ function UserSignup(){
     const handleSubmit = async (e)=>{
         e.preventDefault();
 
-        const res = await fetch('api/userSignup',{
+        const res = await fetch(`${backendURL}/api/userSignup`,{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify(form),

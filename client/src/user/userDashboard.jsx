@@ -1,3 +1,4 @@
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 import { useEffect } from 'react';
 import {useState} from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -13,7 +14,7 @@ function UserDashboard(){
 
     useEffect(()=>{
         const fetchProds = async()=>{
-            const res = await fetch('api/products');
+            const res = await fetch(`${backendURL}/api/products`);
 
             const data =await res.json();
 
@@ -32,7 +33,7 @@ function UserDashboard(){
         }
     };
     const handleCart =async(prod)=>{
-        const res = await fetch('/api/cartProducts',{
+        const res = await fetch(`${backendURL}/api/cartProducts`,{
             method:'POST',
             headers:{
                 'Content-Type':'application/json',
