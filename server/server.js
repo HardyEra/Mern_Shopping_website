@@ -138,9 +138,9 @@ app.get('/api/products/:ad_id',async(req,res)=>{
     }
 });
 app.post('/api/cartProducts',async(req,res)=>{
-    const {userId,prodId,title, price, description}=req.body;
+    const {adminId, userId,prodId,title, price, description}=req.body;
 
-    const cartProd = new Cart({userId,prodId,title,price,description});
+    const cartProd = new Cart({adminId, userId,prodId,title,price,description});
     await cartProd.save();
 
     return res.status(200).json({message:"Product added toc cart"});
