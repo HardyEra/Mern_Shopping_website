@@ -38,7 +38,7 @@ function UserDashboard(){
             headers:{
                 'Content-Type':'application/json',
             },
-            body:JSON.stringify({userId:user._id, prodId:prod._id, title:prod.title, price:prod.price, description:prod.description}),
+            body:JSON.stringify({adminId:prod.adminId,userId:user._id, prodId:prod._id, title:prod.title, price:prod.price, description:prod.description}),
         })
         const data = await res.json();
         if(res.ok){

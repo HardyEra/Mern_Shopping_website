@@ -153,9 +153,9 @@ app.get('/api/cartProd/:user_id',async(req,res)=>{
 })
 
 app.post('/api/Orders',async(req,res)=>{
-    const {userId, prodId, title, price, description} = req.body;
+    const {adminId, userId, prodId, title, price, description} = req.body;
 
-    const orderList = new Order({prodId, userId, title, price, description});
+    const orderList = new Order({adminId, prodId, userId, title, price, description});
     await orderList.save();
 
     await Cart.findOneAndDelete({ userId, prodId });
