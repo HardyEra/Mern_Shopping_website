@@ -167,7 +167,7 @@ app.get('/api/Orders/:ad_id', async (req, res) => {
         const adminId = req.params.ad_id;
 
         // Find all orders where prodId.adminId == adminId
-        const orderInfo = await Order.find({ 'prodId.adminId': adminId });
+        const orderInfo = await Order.find({ adminId });
         res.status(200).json(orderInfo);
     } catch (err) {
         console.error(err);
