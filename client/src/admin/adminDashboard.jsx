@@ -25,7 +25,7 @@ function AdminDashboard(){
             setOrder(data);
         }
         fetchOrders();
-    })
+    },[])
     return (
   <div className="min-h-screen bg-gray-100">
     <AdminNavbar />
