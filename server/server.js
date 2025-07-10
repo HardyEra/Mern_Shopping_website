@@ -22,7 +22,7 @@ app.use(cors({
 
 app.use(express.json());
 
-
+const PORT = process.env.PORT || 5000;
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -155,7 +155,7 @@ app.get('/api/cartProd/:user_id',async(req,res)=>{
 app.post('/api/Orders',async(req,res)=>{
     const {adminId, userId, prodId, title, price, description} = req.body;
 
-    const orderList = new Order({adminId, prodId, userId, title, price, description});
+    const orderList = new Order({ prodId, userId, adminId, title, price, description});
     await orderList.save();
 
     await Cart.findOneAndDelete({ userId, prodId });
@@ -166,7 +166,6 @@ app.get('/api/Orders/:ad_id', async (req, res) => {
     try {
         const adminId = req.params.ad_id;
 
-        // Find all orders where prodId.adminId == adminId
         const orderInfo = await Order.find({ adminId });
         res.status(200).json(orderInfo);
     } catch (err) {
@@ -175,6 +174,6 @@ app.get('/api/Orders/:ad_id', async (req, res) => {
     }
 });
 
-app.listen(5000,()=>{
+app.listen(PORT,()=>{
     console.log('Connect to server!');
 })

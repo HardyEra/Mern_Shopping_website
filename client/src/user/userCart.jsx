@@ -21,7 +21,7 @@ function UserCart(){
         const res = await fetch(`${backendURL}/api/Orders`,{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({prodId:item.prodId, userId:user._id, title:item.title, price:item.price, description:item.description}),
+            body:JSON.stringify({prodId:item.prodId, userId:user._id, adminId:item.adminId , title:item.title, price:item.price, description:item.description}),
 
         })
         const data = await res.json();
