@@ -153,10 +153,12 @@ app.get('/api/cartProd/:user_id',async(req,res)=>{
 })
 
 app.post('/api/Orders',async(req,res)=>{
-    const {userId, prodId} = req.body;
+    const {userId, prodId, title, price, description} = req.body;
 
-    const orderList = new Order({prodId,userId});
+    const orderList = new Order({prodId, userId, title, price, description});
     await orderList.save();
+
+    await Cart.findOneAndDelete({ userId, prodId });
     return res.status(200).json({message:"Product added to order list."});
 });
 
