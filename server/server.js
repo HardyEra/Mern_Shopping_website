@@ -1,5 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
+const jwt = require('jsonwebtoken')
+const {verifytoken} = require('./auth');
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -14,10 +16,12 @@ const Product = require('./models/products');
 const Cart = require('./models/cart');
 const Order = require('./models/order');
 
+const SECRET = process.env.JWT_SECRET || 'hardy123';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: FRONTEND_URL,
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type','Authorization'],
 }));
 
 app.use(express.json());
@@ -32,7 +36,7 @@ mongoose.connect(process.env.MONGO_URL, {
   console.error('MongoDB connection error:', err);
 });
 
-app.post('/api/userSignup',async (req,res)=>{
+app.post('/api/userSignup', async (req,res)=>{
     try{
     const {username,email,password} = req.body;
 
@@ -70,7 +74,7 @@ app.post('/api/adminSignup',async (req,res)=>{
 
 });
 
-app.post('/api/userlogin',async(req,res)=>{
+app.post('/api/userlogin' ,async(req,res)=>{
     const {email,password} = req.body;
     const user = await User.findOne({email});
     if(!user){
@@ -81,7 +85,9 @@ app.post('/api/userlogin',async(req,res)=>{
        return res.status(404).json({message:"Wrong password"});
     }
     
-    return res.status(200).json({ message: "Login Successful", user: { _id: user._id, email: user.email, username: user.username } });
+    const token = jwt.sign({id:user._id,email:user.email,name:user.username,role:'user'},SECRET,{expiresIn:'1h'});
+
+    return res.status(200).json({ message: "Login Successful",token, user: { _id: user._id, email: user.email, username: user.username } });
 });
 
 app.post('/api/adminlogin',async(req,res)=>{
@@ -95,11 +101,16 @@ app.post('/api/adminlogin',async(req,res)=>{
        return res.status(404).json({message:"Wrong password"});
     }
 
-    return res.status(200).json({admin: { _id: admin._id, email: admin.email, username: admin.username } });
+    const token = jwt.sign({adminId:admin._id, email:admin.email, name:admin.username, role:'admin'},SECRET,{expiresIn:'1h'});
+
+    return res.status(200).json({token,admin: { _id: admin._id, email: admin.email, username: admin.username } });
 });
 
-app.post('/api/products', upload.single('image'), async (req, res) => {
+app.post('/api/products',verifytoken, upload.single('image'), async (req, res) => {
   try {
+    if(req.user.role!='admin') return res.status(403).json({message:"Only Admins Allowed to post"});
+
+
     const { adminId, title, price, description } = req.body;
     const image = req.file.path || req.file.secure_url;  // ← Cloudinary handles this
     const product = new Product({ adminId, title, price, description, image });
@@ -112,7 +123,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
   }
 });
 
-app.get('/api/products',async(req,res)=>{
+app.get('/api/products',verifytoken,async(req,res)=>{
     try{
     const allProducts = await Product.find();
 
@@ -124,8 +135,10 @@ app.get('/api/products',async(req,res)=>{
 
 })
 
-app.get('/api/products/:ad_id',async(req,res)=>{
+app.get('/api/products/:ad_id',verifytoken,async(req,res)=>{
     try{
+        if(req.user.role!='admin') return res.status(202).json({message:"Only Admins Allowed"});
+
     const adminId = req.params.ad_id;
 
     const products = await Product.find({adminId});
@@ -137,24 +150,51 @@ app.get('/api/products/:ad_id',async(req,res)=>{
         return res.status(404).json({message:"Error"});
     }
 });
-app.post('/api/cartProducts',async(req,res)=>{
-    const {adminId, userId,prodId,title, price, description}=req.body;
+app.post('/api/cartProducts', verifytoken, async (req, res) => {
+  if (req.user.role !== 'user') return res.status(403).json({ message: "Login as User" });
 
-    const cartProd = new Cart({adminId, userId,prodId,title,price,description});
-    await cartProd.save();
+  const userId = req.user.id;
+  const { prodId } = req.body;
 
-    return res.status(200).json({message:"Product added toc cart"});
-})
-app.get('/api/cartProd/:user_id',async(req,res)=>{
+  const product = await Product.findById(prodId);
+
+  if (!product) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+
+  const { title, price, description, adminId } = product;
+
+  const cartProd = new Cart({
+    adminId,
+    userId,
+    prodId,
+    title,
+    price,
+    description
+  });
+
+  await cartProd.save();
+
+  return res.status(200).json({ message: "Product added to cart" });
+});
+
+app.get('/api/cartProd/:user_id',verifytoken,async(req,res)=>{
+    if(req.user.role!='user') return res.status(403).json({message:"Login as User"});
     const userId =req.params.user_id;
 
     const cartProd = await Cart.find({userId});
     return res.status(200).json(cartProd);
 })
 
-app.post('/api/Orders',async(req,res)=>{
-    const {adminId, userId, prodId, title, price, description} = req.body;
+app.post('/api/Orders',verifytoken,async(req,res)=>{
+    if(req.user.role!='user') return res.status(403).json({message:"Login as User"});
 
+    const userId = req.user.id;
+    const{prodId} = req.body;
+
+    const product = await Product.findById(prodId)
+    if(!product) return res.status(404).json({message:"Not Found: Product"});
+    const {adminId, title, price, description} = product;
     const orderList = new Order({ prodId, userId, adminId, title, price, description});
     await orderList.save();
 
@@ -162,8 +202,9 @@ app.post('/api/Orders',async(req,res)=>{
     return res.status(200).json({message:"Product added to order list."});
 });
 
-app.get('/api/Orders/:ad_id', async (req, res) => {
+app.get('/api/Orders/:ad_id', verifytoken ,async (req, res) => {
     try {
+        if(req.user.role!='admin') return res.status(403).json({message:"Only Admins Allowed"});
         const adminId = req.params.ad_id;
 
         const orderInfo = await Order.find({ adminId });

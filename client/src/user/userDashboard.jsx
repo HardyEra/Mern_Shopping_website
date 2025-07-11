@@ -4,24 +4,41 @@ import {useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from './Navbar';
 import '../index.css' 
+import parseJwt from '../parseJWT';
 
 
 function UserDashboard(){
     const[prod,setProd]=useState([]);
     const[currPage,setCurrPage]=useState(1);
     const prodperPage = 24;
-    const user = JSON.parse(localStorage.getItem('user'));
+
+    const token = localStorage.getItem('token');
+    const decoded = parseJwt(token);
+
+    const userId = decoded?.role==='user'? decoded.id : null; 
 
     useEffect(()=>{
         const fetchProds = async()=>{
-            const res = await fetch(`${backendURL}/api/products`);
+          if(!userId) return;
+
+
+            const res = await fetch(`${backendURL}/api/products`,{
+              headers:{
+                Authorization:`Bearer ${token}`,
+              }
+            });
 
             const data =await res.json();
 
+          if (res.ok && Array.isArray(data)) {
             setProd(data);
+          } else {
+          console.error("Error fetching products:", data);
+          setProd([]);
+          }
         };
         fetchProds();
-    },[]);
+    },[userId]);
 
     const indexLast = currPage*prodperPage;
     const indexFirst = indexLast-prodperPage;
@@ -34,11 +51,13 @@ function UserDashboard(){
     };
     const handleCart =async(prod)=>{
         const res = await fetch(`${backendURL}/api/cartProducts`,{
+
             method:'POST',
             headers:{
                 'Content-Type':'application/json',
+                Authorization:`Bearer ${token}`,
             },
-            body:JSON.stringify({adminId:prod.adminId, userId:user._id, prodId:prod._id, title:prod.title, price:prod.price, description:prod.description}),
+            body:JSON.stringify({prodId:prod._id}),
         })
         const data = await res.json();
         if(res.ok){

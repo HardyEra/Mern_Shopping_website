@@ -24,7 +24,7 @@ function AdminLogin() {
 
             if (info.ok) {
                 alert("Login Successful!");
-                localStorage.setItem('admin', JSON.stringify(data.admin));
+                localStorage.setItem('token',data.token);
                 navigate('/adminDashboard');
             } else {
                 alert(data.message || "Login failed.");

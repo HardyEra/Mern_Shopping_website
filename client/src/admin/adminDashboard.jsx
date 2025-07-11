@@ -3,29 +3,46 @@ import {useState} from 'react'
 import { useEffect } from 'react';
 import '../index.css'
 import AdminNavbar from './adminNav';
+import parseJwt from '../parseJWT';
 
 function AdminDashboard(){
-    const admin = JSON.parse(localStorage.getItem('admin'||{}));
+
+    const token = localStorage.getItem('token');
+    const decoded = parseJwt(token);
     const[admProd,setadmProd]=useState([]);
     const[order,setOrder]=useState([]);
-    const ad_id = admin._id;
+    const ad_id = decoded?.role === 'admin' ? decoded.adminId : null;
     useEffect(()=>{
+      if(!ad_id) return;
+
+
         const fetchProd = async ()=>{
-            const res = await fetch(`${backendURL}/api/products/${ad_id}`);
+            const res = await fetch(`${backendURL}/api/products/${ad_id}`,{
+              headers:{
+                Authorization:`Bearer ${token}`,
+              }
+              });
             const data =await res.json();
             setadmProd(data);
         }
         fetchProd();
-    },[])
+    },[ad_id])
     useEffect(()=>{
+      if(!ad_id) return;
+
+
         const fetchOrders =async ()=>{
-            const res = await fetch(`${backendURL}/api/Orders/${ad_id}`);
+            const res = await fetch(`${backendURL}/api/Orders/${ad_id}`,{
+              headers:{
+                Authorization:`Bearer ${token}`,
+              }
+            });
 
             const data  =await res.json();
             setOrder(data);
         }
         fetchOrders();
-    },[])
+    },[ad_id])
     return (
   <div className="min-h-screen bg-gray-100">
     <AdminNavbar />

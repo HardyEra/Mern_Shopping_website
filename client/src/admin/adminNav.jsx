@@ -1,10 +1,12 @@
 import '../index.css';
 import { useNavigate } from 'react-router-dom';
+import parseJwt from '../parseJWT';
 
 function AdminNavbar() {
     const navigate = useNavigate();
-    const admin = JSON.parse(localStorage.getItem('admin') || '{}');
-    const initial = admin?.username?.charAt(0)?.toUpperCase() || '?';
+    const token = localStorage.getItem('token');
+    const decoded = parseJwt(token);
+    const initial = decoded?.name.charAt(0).toUpperCase() || '?';
 
     return (
         <div className="w-full h-20 bg-blue-600 flex items-center justify-between px-8 shadow-md text-white">

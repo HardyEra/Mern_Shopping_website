@@ -2,13 +2,22 @@ const backendURL = import.meta.env.VITE_BACKEND_URL;
 import { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import '../index.css'
+import parseJwt from "../parseJWT";
 
 function UserCart(){
-    const user = JSON.parse(localStorage.getItem('user'));
+
+    const token = localStorage.getItem('token');
+    const decoded = parseJwt(token);
+    const userId = decoded?.role==='user'? decoded.id : null;
+
     const [prod,setProd]=useState([]);
     useEffect(()=>{
         const fetchCartProd =async ()=>{
-            const res = await fetch(`${backendURL}/api/cartProd/${user._id}`);
+            const res = await fetch(`${backendURL}/api/cartProd/${userId}`,{
+              headers:{
+                Authorization:`Bearer ${token}`,
+              }
+            });
 
             const data = await res.json();
 
@@ -20,14 +29,17 @@ function UserCart(){
     const handleBuy =async (item)=>{
         const res = await fetch(`${backendURL}/api/Orders`,{
             method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({prodId:item.prodId, userId:user._id, adminId:item.adminId , title:item.title, price:item.price, description:item.description}),
+            headers:{'Content-Type':'application/json',
+              Authorization:`Bearer ${token}`,
+            },
+            body:JSON.stringify({prodId:item.prodId}),
 
         })
         const data = await res.json();
         if(res.ok){
             return alert(data.message);
         }
+        console.log(data.message);
         return alert("Failed to Buy product..."); 
     }
 

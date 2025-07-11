@@ -25,7 +25,7 @@ function UserLogin() {
 
             if (info.ok) {
                 alert("Login Successful!");
-                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token );
                 navigate('/userDashboard');
             } else {
                 alert(data.message || "Login failed.");

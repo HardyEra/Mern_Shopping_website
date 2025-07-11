@@ -1,4 +1,5 @@
 import { useState } from "react";
+import parseJwt from "../parseJWT";
 const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 function PostProducts(){
@@ -9,6 +10,14 @@ function PostProducts(){
         image:null,
     });
     const admin = JSON.parse(localStorage.getItem('admin')||'{}');
+    const token = localStorage.getItem('token');
+    const decoded = parseJwt(token);
+    let adminId = null;
+    if (decoded?.role === "admin") {
+        adminId = decoded.adminId;
+    } else {
+        console.log("Auth error: Not an admin");
+    }
 
     const handleChange = (e)=>{
         setForm({...form,[e.target.name]:e.target.value});
@@ -21,11 +30,11 @@ function PostProducts(){
         e.preventDefault();
 
         const formData = new FormData();
-        if (!admin._id) {
+        if (!adminId) {
             alert("Admin not logged in.");
             return;
         }
-        formData.append('adminId',admin._id);
+        formData.append('adminId',adminId);
         formData.append('title',form.title);
         formData.append('price',form.price);
         formData.append('description',form.description);
@@ -35,6 +44,9 @@ function PostProducts(){
         try {
             const res = await fetch(`${backendURL}/api/products`, {
             method: 'POST',
+            headers:{
+                Authorization:`Bearer ${token}`,
+            },
             body: formData,
             });
 

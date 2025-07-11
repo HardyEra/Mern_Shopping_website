@@ -1,17 +1,13 @@
 import { Navigate } from "react-router-dom";
+import parseJwt from "../parseJWT";
 
 function UserProtectedRoute({ children }) {
     let userData = {};
 
-    try {
-        userData = JSON.parse(localStorage.getItem('user') || '{}');
-    } catch (err) {
-        console.error("Corrupted user data in localStorage:", err);
-        localStorage.removeItem('user');
-        userData = {};
-    }
+    const token = localStorage.getItem('token');
+    const decoded = parseJwt(token);
 
-    if (!userData._id) {
+    if (!decoded || decoded.role !== 'user') {
         alert('Please Login First!');
         return <Navigate to='/userLogin' />;
     }

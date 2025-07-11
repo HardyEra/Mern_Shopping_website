@@ -1,7 +1,10 @@
 import '../index.css';
+import parseJwt from '../parseJWT';
 
 function Navbar() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token');
+    const decoded = parseJwt(token);
 
     return (
         <div className="w-full px-8 py-4 bg-blue-600 text-white flex items-center justify-between shadow-md">
@@ -26,7 +29,7 @@ function Navbar() {
                 </button>
 
                 <div className="text-lg font-medium">
-                    Hello, {user.username || 'Guest'}!
+                    Hello, {decoded?.name || 'Guest'}!
                 </div>
             </div>
         </div>
