@@ -9,7 +9,9 @@ function PostProducts(){
         description:'',
         image:null,
     });
-    const admin = JSON.parse(localStorage.getItem('admin')||'{}');
+    const[loading,setLoading]=useState(false);
+
+
     const token = localStorage.getItem('token');
     const decoded = parseJwt(token);
     let adminId = null;
@@ -28,6 +30,7 @@ function PostProducts(){
     
     const handleSubmit = async (e)=>{
         e.preventDefault();
+        setLoading(true);
 
         const formData = new FormData();
         if (!adminId) {
@@ -62,6 +65,8 @@ function PostProducts(){
         } catch (error) {
         console.error("Upload Error:", error.message);
         alert("Upload failed: " + error.message);
+        }finally{
+            setLoading(false);
         }
 
 
@@ -121,10 +126,10 @@ function PostProducts(){
                     />
 
                     <button
-                        type="submit"
+                        type="submit" disabled={loading}
                         className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200 font-medium"
                     >
-                        Upload Product
+                        {loading?"Uploading...":"Upload Product"}
                     </button>
                 </form>
             </div>

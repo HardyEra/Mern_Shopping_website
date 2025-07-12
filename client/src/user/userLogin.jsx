@@ -6,6 +6,7 @@ const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 function UserLogin() {
     const [form, setForm] = useState({ email: '', password: '' });
+    const[loading,setLoading]=useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -14,6 +15,7 @@ function UserLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const info = await fetch(`${backendURL}/api/userlogin`, {
                 method: 'POST',
@@ -34,6 +36,8 @@ function UserLogin() {
         } catch (err) {
             console.log("Error while fetching:", err);
             alert("Failed to get details. Try again!");
+        }finally{
+            setLoading(false);
         }
     };
 
@@ -62,9 +66,10 @@ function UserLogin() {
                     />
                     <button
                         type="submit"
+                        disabled={loading}
                         className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
                     >
-                        Login
+                        {loading? "Please wait":"Login"}
                     </button>
                 </form>
             </div>

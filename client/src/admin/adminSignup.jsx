@@ -5,14 +5,16 @@ import '../index.css';
 
 function AdminSignup(){
     const [form,setForm]=useState({username:'',email:'',password:''});
+    const[loading,setLoading]=useState(false);
     const navigate = useNavigate();
     const handleChange =(e)=>{
         setForm({...form,[e.target.name]:e.target.value});
     }
     const handleSubmit = async (e)=>{
         e.preventDefault();
-
-        const res = await fetch(`${backendURL}/api/adminSignup`,{
+        setLoading(true);
+      try{
+          const res = await fetch(`${backendURL}/api/adminSignup`,{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify(form),
@@ -29,6 +31,12 @@ function AdminSignup(){
             alert('Failed to create an Account');
             return console.log({message:data.message});
         }
+      }catch(err){
+        console.log("Error in server");
+      }finally{
+        setLoading(false);
+      }
+        
         
     }
 
@@ -67,10 +75,10 @@ function AdminSignup(){
           className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
-          type="submit"
+          type="submit" disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200 font-medium"
         >
-          Sign Up
+          {loading?"Signing in...":"Sign in"}
         </button>
       </form>
     </div>

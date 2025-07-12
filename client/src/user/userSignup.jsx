@@ -4,32 +4,38 @@ import { useNavigate } from "react-router-dom";
 
 function UserSignup(){
     const [form,setForm]=useState({username:'',email:'',password:''});
+    const[loading,setLoading]=useState(false);
     const navigate = useNavigate();
     const handleChange =(e)=>{
         setForm({...form,[e.target.name]:e.target.value});
     }
-    const handleSubmit = async (e)=>{
-        e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true); // start loader
 
-        const res = await fetch(`${backendURL}/api/userSignup`,{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(form),
-        })
+  try {
+    const res = await fetch(`${backendURL}/api/userSignup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
 
-        const data = await res.json();
+    const data = await res.json();
 
-        if(res.ok){
-            alert('Account created Successfully!');
-            return navigate('/userLogin');
-        }
-        else{
-              alert('Failed to create an Account');
-            return console.log({message:data.message});
-
-        }
-        
+    if (res.ok) {
+      alert("Account created successfully!");
+      navigate("/userLogin");
+    } else {
+      alert(data.message || "Signup failed.");
     }
+  } catch (err) {
+    console.error("Error:", err);
+    alert("Something went wrong. Try again.");
+  } finally {
+    setLoading(false); // stop loader
+  }
+};
+
 
     return (
   <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -64,10 +70,10 @@ function UserSignup(){
           className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
-          type="submit"
+          type="submit" disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
         >
-          Sign Up
+          {loading ? "Signing up..." : "Sign Up"}
         </button>
       </form>
     </div>
