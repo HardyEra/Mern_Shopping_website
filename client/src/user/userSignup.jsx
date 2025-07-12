@@ -21,11 +21,12 @@ function UserSignup(){
 
         if(res.ok){
             alert('Account created Successfully!');
-            navigate('/userLogin');
+            return navigate('/userLogin');
         }
         else{
-            console.log({message:data.message});
-            alert('Failed to create an Account');
+              alert('Failed to create an Account');
+            return console.log({message:data.message});
+
         }
         
     }
