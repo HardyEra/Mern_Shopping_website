@@ -11,11 +11,13 @@ import PostProducts from './admin/postProducts.jsx';
 import UserSignup from './user/userSignup.jsx';
 import AdminSignup from './admin/adminSignup.jsx';
 import UserCart from './user/userCart.jsx';
+import MainPage from './mainPage.jsx';
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <Routes>
+      <Route path="/" element={<MainPage/>} />
       <Route path="/userSignup" element={<UserSignup/>} />
       <Route path="/adminSignup" element={<AdminSignup/>} />
       <Route path="/userLogin" element={<UserLogin/>}/>
