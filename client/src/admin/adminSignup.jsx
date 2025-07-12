@@ -22,11 +22,12 @@ function AdminSignup(){
 
         if(res.ok){
             alert('Account created Successfully!');
-            navigate('/adminLogin');
+            return navigate('/adminLogin');
         }
         else{
-            console.log({message:data.message});
+
             alert('Failed to create an Account');
+            return console.log({message:data.message});
         }
         
     }
