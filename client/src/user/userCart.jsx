@@ -13,7 +13,7 @@ function UserCart(){
     const [prod,setProd]=useState([]);
     useEffect(()=>{
         const fetchCartProd =async ()=>{
-            const res = await fetch(`${backendURL}/api/cartProd/${userId}`,{
+            const res = await fetch(`${backendURL}/api/cartProd`,{
               headers:{
                 Authorization:`Bearer ${token}`,
               }
@@ -26,22 +26,37 @@ function UserCart(){
         fetchCartProd();
     },[])
 
-    const handleBuy =async (item)=>{
-        const res = await fetch(`${backendURL}/api/Orders`,{
-            method:'POST',
-            headers:{'Content-Type':'application/json',
-              Authorization:`Bearer ${token}`,
-            },
-            body:JSON.stringify({prodId:item.prodId}),
+const handleBuy = async (item) => {
+  const prodId = item.prodId || item._id || item.id;
+  if (!prodId) {
+    console.error("No product ID found for:", item);
+    return alert("Failed to process product");
+  }
 
-        })
-        const data = await res.json();
-        if(res.ok){
-            return alert(data.message);
-        }
-        console.log(data.message);
-        return alert("Failed to Buy product..."); 
+  try {
+    const res = await fetch(`${backendURL}/api/Orders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ prodId }),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Order failed:", errorText);
+      return alert("Failed to buy product");
     }
+
+    const data = await res.json();
+    alert(data.message);
+  } catch (err) {
+    console.error("Unexpected error:", err);
+    alert("Error processing order");
+  }
+};
+
 
     return (
   <div className="min-h-screen bg-gray-50">
